@@ -1,24 +1,23 @@
 const express = require('express');
 const router = express.Router();
-
-router.use(express.json())
+const conn = require('../mariadb'); // DB 모듈
+const {
+    join,
+    login,
+    passwordReset,
+    passwordResetRequest
+} = require('../controller/UserController');
+router.use(express.json());
 
 // 회원가입
-router.post('/users/join', (req, res) => {
-    res.json('회원가입');
-});
+router.post('/join', join
+);
 // 로그인
-router.post('/users/login', (req, res) => {
-    res.json('로그인');
-});
+router.post('/login', login);
 // 비밀번호 초기화 요청
-router.post('/users/reset', (req, res) => {
-    res.json('비밀번호 초기화 요청');
-});
+router.post('/reset', passwordResetRequest);
 // 비밀번호 초기화
-router.put('/users/reset', (req, res) => {
-    res.json('비밀번호 초기화');
-});
+router.put('/reset', passwordReset);
 
 // 모듈화
 module.exports = router
