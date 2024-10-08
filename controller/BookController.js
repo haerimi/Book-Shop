@@ -12,7 +12,7 @@ const allBooks = (req, res) => {
     current_page = parseInt(current_page);
     let offset = limit * (current_page - 1);
 
-    let sql = 'SELECT * FROM books';
+    let sql = 'SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes FROM books';
     let values = [];
 
     // 카테고리 id와 new_book이 있는 경우
@@ -48,12 +48,20 @@ const allBooks = (req, res) => {
 
 // 개별 도서 조회
 const bookDetail = (req, res) => {
-    let {id} = req.params;
+    let {user_id} = req.body;
+    let book_id = req.params.id;    // let {id} = req.params
     
     //SELECT * FROM books WHERE id = ?
-    let sql = 'SELECT * FROM books LEFT JOIN category ON books.category_id = category.id WHERE books.id=?';
+    let sql = `SELECT *, 
+	            (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes,
+	            (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS liked
+            FROM books 
+            LEFT JOIN category 
+            ON books.category_id = category.id 
+            WHERE books.id=?;`;
 
-    conn.query(sql, id,
+    let values = [user_id, book_id, book_id];
+    conn.query(sql, values,
         (err, results) => {
             if (err) {
                 console.log(err)
