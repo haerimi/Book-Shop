@@ -22,7 +22,10 @@ const join = (req, res) => {
                 console.log(err)
                 return res.status(StatusCodes.BAD_REQUEST).end(); // BAD REQUEST == 400
             }
-            return res.status(StatusCodes.CREATED).json(results);  // Code => 200
+            if (results.affectedRows)
+                return res.status(StatusCodes.CREATED).json(results);  // Code => 200
+            else 
+                return res.status(StatusCodes.BAD_REQUEST).end();
         })
     }
 
