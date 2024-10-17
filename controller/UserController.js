@@ -9,7 +9,6 @@ const join = (req, res) => {
     const {email, password} = req.body;
 
     let sql = 'INSERT INTO users (email, password, salt) VALUES (?, ?, ?)';
-
     
     // 암호화된 비밀번호와 salt 값을 같이 DB에 저장
     // 비밀번호 암호화
@@ -46,6 +45,7 @@ const login = (req, res) => {
             if (loginUser && loginUser.password == hashPassword) {
                 // 토큰 발행
                 const token = jwt.sign({
+                    id : loginUser.id,
                     email : loginUser.email
                 }, process.env.PRIVATE_KEY, {
                     expiresIn : '5m',
@@ -66,7 +66,7 @@ const login = (req, res) => {
 }
 
 const passwordResetRequest =  (req, res) => {
-    const {email, password} = req.body;
+    const {email} = req.body;
 
     let sql = 'SELECT * FROM users WHERE email = ?';
     conn.query(sql, email,
@@ -96,7 +96,7 @@ const passwordReset = (req, res) => {
     const salt = crypto.randomBytes(10).toString('base64');
     const hasgPassword = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
 
-    let values = [password, salt, email];
+    let values = [hasgPassword, salt, email];
     conn.query(sql, values, 
         (err, results) => {
             if (err) {
