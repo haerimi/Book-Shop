@@ -14,22 +14,24 @@ const allBooks = (req, res) => {
     current_page = parseInt(current_page);
     let offset = limit * (current_page - 1);
 
-    let sql = 'SELECT SQL_CALC_FOUND_ROWS *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes FROM books';
+    let sql = `SELECT SQL_CALC_FOUND_ROWS *, 
+                (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes 
+                FROM books`;
     let values = [];
 
     // 카테고리 id와 new_book이 있는 경우
     if (category_id && new_book) {
-        sql += ' WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
+        sql += ` WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
         values = [category_id];
     }
     // 카테고리 id만 있는 경우
     else if (category_id) {
-        sql += ' WHERE category_id = ?';    
+        sql += ` WHERE category_id = ?`;    
         values = [category_id];
     }
     // 둘다 없는 경우
     else if (new_book) {
-        sql += ' WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
+        sql += ` WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
     }
     
     sql += ' LIMIT ? OFFSET ?';
@@ -111,8 +113,8 @@ const bookDetail = (req, res) => {
         
         //SELECT * FROM books WHERE id = ?
         let sql = `SELECT *, 
-                    (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes,
-                    (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS liked
+                (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes,
+                (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS liked
                 FROM books 
                 LEFT JOIN category 
                 ON books.category_id = category.category_id 
